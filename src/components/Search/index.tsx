@@ -1,5 +1,6 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState, useReducer } from "react";
 import { graphql, navigate, useStaticQuery } from "gatsby";
+import "./index.css";
 import FlexSearch, { Index } from "flexsearch";
 import { IcSearchBar } from "@ukic/react";
 import clsx from "clsx";
@@ -29,7 +30,7 @@ const Search: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<SearchResult[]>();
   const [idx, setIdx] = useState<Index<any>>();
-
+  const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   useEffect(() => {
     const importedIndex = FlexSearch.create();
     importedIndex.import(index);
@@ -37,6 +38,10 @@ const Search: React.FC = () => {
     setHasMounted(true);
   }, []);
 
+  useEffect(() => {
+    document?.getElementById("site-top-nav")?.shadowRoot.querySelector("header")?.querySelector(".search-actions-container")?.querySelector(".button-variant-icon")?.shadowRoot?.querySelector(".button")?.setAttribute("style", "display: inline;")
+    forceUpdate();
+  }, [hasMounted])
   const onIcOptionSelect = (event: CustomEvent) => {
     const { value: selectedValue } = event.detail;
     if (options) {
@@ -109,7 +114,6 @@ const Search: React.FC = () => {
     // cancel form submissions for now - may want to enhance in future to take to a search results page
     event.preventDefault();
   };
-
   return (
     <form
       role="search"
